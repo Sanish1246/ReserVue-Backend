@@ -5,6 +5,9 @@ import { fileURLToPath } from "url";
 import { connectToDb } from "./db.js";
 import fs from "fs";
 
+//Routes
+import lessonRoutes from "./routes/lessons.js";
+
 //Initializing express
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -30,6 +33,8 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
+//Routes for our requests
+app.use("/", lessonRoutes);
 
 const port = 8000;
 const hostname = "localhost";
