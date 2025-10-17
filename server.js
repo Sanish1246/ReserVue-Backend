@@ -39,7 +39,7 @@ app.use(express.json());
 // Configuring CORS to allow requests from the frontend hosted on GitHub Pages
 //Else all requests from the frontend will be rejected by the server
 const FRONTEND_ORIGIN =
-  process.env.FRONTEND_ORIGIN || "https://sanish1246.github.io/ReserVue/";
+  process.env.FRONTEND_ORIGIN || "https://sanish1246.github.io";
 app.use(
   cors({
     origin: FRONTEND_ORIGIN,
