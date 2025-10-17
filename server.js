@@ -1,4 +1,3 @@
-// ...existing code...
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -29,16 +28,16 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Trust first proxy when in production (Render/GitHub Pages reverse proxies)
+// Trusting Proxy if developing for production
 if (process.env.NODE_ENV === "production") {
   app.set("trust proxy", 1);
 }
 
-// Middleware
+//Express Middleware
 app.use(express.json());
 
-// Configure CORS to allow the frontend hosted on GitHub Pages
-// NOTE: CORS origin should be the origin (no path), e.g. "https://sanish1246.github.io"
+// Configuring CORS to allow requests from the frontend hosted on GitHub Pages
+//Else all requests from the frontend will be rejected by the server
 const FRONTEND_ORIGIN =
   process.env.FRONTEND_ORIGIN || "https://sanish1246.github.io";
 app.use(
@@ -48,7 +47,7 @@ app.use(
   })
 );
 
-// Initialize session using environment secret
+// Initializing session using environment secret
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "dev-secret",
@@ -63,55 +62,26 @@ app.use(
   })
 );
 
-// Static/public handling:
-// If a local public/index.html exists (dev or if you included frontend in repo), serve it.
-// Otherwise don't attempt to serve static files and redirect image requests to the GitHub Pages site.
-const publicDir = path.join(__dirname, "public");
-const publicIndexPath = path.join(publicDir, "index.html");
 const frontendBaseForAssets = (
   process.env.FRONTEND_ASSET_BASE ||
-  process.env.FRONTEND_ORIGIN +
-    (process.env.FRONTEND_ORIGIN?.endsWith("/") ? "" : "") || // fallback
+  process.env.FRONTEND_ORIGIN ||
   "https://sanish1246.github.io/ReserVue"
 ).replace(/\/$/, ""); // ensure no trailing slash
 
-if (fs.existsSync(publicIndexPath)) {
-  // Serve lesson images with existence check (local public folder exists)
-  app.get("/images/:imageName", (req, res, next) => {
-    const imagePath = path.join(publicDir, "images", req.params.imageName);
+// Always redirect image requests to GitHub Pages frontend
+app.get("/images/:imageName", (req, res) => {
+  const imageUrl = `${frontendBaseForAssets}/ReserVue/images/${encodeURIComponent(
+    req.params.imageName
+  )}`;
+  return res.redirect(imageUrl);
+});
 
-    fs.access(imagePath, fs.constants.F_OK, (err) => {
-      if (err) {
-        return res.status(404).json({ error: "Lesson image not found" });
-      }
-      // send the actual file
-      res.sendFile(imagePath);
-    });
-  });
-
-  //Serving the public folder
-  app.use(express.static(publicDir));
-
-  //Serving the index.HTML file
-  app.get("/", (req, res) => {
-    res.sendFile(publicIndexPath);
-  });
-} else {
-  // No local public files — redirect image requests to the GitHub Pages frontend
-  app.get("/images/:imageName", (req, res) => {
-    const imageUrl = `${frontendBaseForAssets}/ReserVue/images/${encodeURIComponent(
-      req.params.imageName
-    )}`;
-    return res.redirect(imageUrl);
-  });
-
-  // Optional root note / health check can remain; do not serve index.html
-  app.get("/", (req, res) => {
-    res.send(
-      "Backend running. Frontend is hosted separately at https://sanish1246.github.io/ReserVue/"
-    );
-  });
-}
+// Health check or root note
+app.get("/", (req, res) => {
+  res.send(
+    "Backend running. Frontend is hosted at https://sanish1246.github.io/ReserVue/"
+  );
+});
 
 app.use(logger);
 
@@ -120,7 +90,6 @@ app.use("/", lessonRoutes);
 app.use("/", ordersRoutes);
 
 const port = process.env.PORT || 8000;
-// hostname is not required when deploying to platforms which bind automatically
 
 //Connecting to the DB
 async function startServer() {
@@ -137,4 +106,3 @@ async function startServer() {
 }
 
 startServer();
-// ...existing code...
