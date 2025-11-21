@@ -64,17 +64,26 @@ const frontendBaseForAssets = (
   process.env.FRONTEND_ASSET_BASE ||
   process.env.FRONTEND_ORIGIN ||
   "https://sanish1246.github.io/ReserVue"
-).replace(/\/$/, ""); // ensure no trailing slash
+).replace(/\/$/, "");
 
-// Always redirect image requests to GitHub Pages frontend
-app.get("/images/:imageName", (req, res) => {
-  const imageUrl = `${frontendBaseForAssets}/ReserVue/images/${encodeURIComponent(
-    req.params.imageName
-  )}`;
-  return res.redirect(imageUrl);
-});
+// Serve local images if present, otherwise redirect to GitHub Pages
+const localImagesDir = path.join(__dirname, "images");
+if (fs.existsSync(localImagesDir)) {
+  // Serve static images from /images
+  app.use(
+    "/images",
+    express.static(localImagesDir, {
+      maxAge: "1d",
+      setHeaders: (res) => {
+        res.setHeader("Access-Control-Allow-Origin", FRONTEND_ORIGIN);
+      },
+    })
+  );
+} else {
+  console.log("Image/Directory not found!");
+}
 
-// Health check or root note
+// Health check for root note
 app.get("/", (req, res) => {
   res.send(
     "Backend running. Frontend is hosted at https://sanish1246.github.io/ReserVue/"
