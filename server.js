@@ -66,10 +66,9 @@ const frontendBaseForAssets = (
   "https://sanish1246.github.io/ReserVue"
 ).replace(/\/$/, "");
 
-// Serve local images if present, otherwise redirect to GitHub Pages
+// Serve local images if present
 const localImagesDir = path.join(__dirname, "images");
 if (fs.existsSync(localImagesDir)) {
-  // Serve static images from /images
   app.use(
     "/images",
     express.static(localImagesDir, {
