@@ -2,7 +2,6 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import express from "express";
-import session from "express-session";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -17,6 +16,7 @@ import ordersRoutes from "./routes/orders.js";
 function logger(req, res, next) {
   const now = new Date();
   console.log(`[${now.toISOString()}] ${req.method} ${req.originalUrl}`);
+  console.log(`[Response: ${res}`);
   console.log("--------------------------------------------------");
   next();
 }
@@ -25,11 +25,6 @@ function logger(req, res, next) {
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// Trusting Proxy if developing for production
-// if (process.env.NODE_ENV === "production") {
-//   app.set("trust proxy", 1);
-// }
 
 //Express Middleware
 app.use(express.json());
@@ -44,27 +39,6 @@ app.use(
     credentials: true,
   })
 );
-
-// Initializing session using environment secret
-// app.use(
-//   session({
-//     secret: process.env.SESSION_SECRET || "dev-secret",
-//     resave: false,
-//     saveUninitialized: false,
-//     cookie: {
-//       secure: process.env.NODE_ENV === "production",
-//       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-//       httpOnly: true,
-//       maxAge: 24 * 60 * 60 * 1000, // 1 day
-//     },
-//   })
-// );
-
-const frontendBaseForAssets = (
-  process.env.FRONTEND_ASSET_BASE ||
-  process.env.FRONTEND_ORIGIN ||
-  "https://sanish1246.github.io/ReserVue"
-).replace(/\/$/, "");
 
 // Serve local images if present
 const localImagesDir = path.join(__dirname, "images");
