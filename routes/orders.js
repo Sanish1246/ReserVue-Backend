@@ -48,7 +48,7 @@ router.put("/order/:orderId/update", async (req, res) => {
     await Promise.all(updatePromises);
 
     res.status(200).json({
-      message: "Order completed successfully",
+      message: "Order completed and lesson updated successfully",
     });
   } catch (err) {
     console.error(err);
