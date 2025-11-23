@@ -16,7 +16,6 @@ import ordersRoutes from "./routes/orders.js";
 function logger(req, res, next) {
   const now = new Date();
   console.log(`[${now.toISOString()}] ${req.method} ${req.originalUrl}`);
-  console.log(`[Response: ${res}`);
   console.log("--------------------------------------------------");
   next();
 }
@@ -53,7 +52,7 @@ if (fs.existsSync(localImagesDir)) {
     })
   );
 } else {
-  console.log("Image/Directory not found!");
+  console.log("Image or directory not found!");
 }
 
 // Health check for root note
