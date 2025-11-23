@@ -28,10 +28,8 @@ To use this app locally, you will need create a .env file and insert the followi
 
 ```
 MONGODB_URI=[URI to the mongodb database]
-PORT=[Port number]
 NODE_ENV=development
 FRONTEND_ORIGIN=[Link to the front end of the application]
-SESSION_SECRET=[Express secret]
 DB_NAME=[Name of the database]
 ```
 
