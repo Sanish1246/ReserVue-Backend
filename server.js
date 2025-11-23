@@ -51,6 +51,11 @@ if (fs.existsSync(localImagesDir)) {
       },
     })
   );
+
+  // Error handler for missing images
+  app.use("/images", (req, res) => {
+    res.status(404).json({ error: "Image not found" });
+  });
 } else {
   console.log("Image or directory not found!");
 }
