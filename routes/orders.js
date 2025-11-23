@@ -20,13 +20,12 @@ router.post("/order", async (req, res) => {
   }
 });
 
-//PUT request to permanently update the lessons spaces after checkout
+// PUT request to update any lesson attributes after checkout
 router.put("/order/:orderId/update", async (req, res) => {
   const { orderId } = req.params;
   const db = req.app.locals.db;
 
   try {
-    // Getting the order to retrieve lessons that need to be updated
     const order = await db.collection("Orders").findOne({
       _id: new ObjectId(orderId),
     });
@@ -35,24 +34,25 @@ router.put("/order/:orderId/update", async (req, res) => {
       return res.status(404).json({ error: "Order not found" });
     }
 
-    // Update spaces for each lesson in the order with the exact value
-    const updatePromises = order.lessons.map((lesson) =>
-      db
+    // For each lesson in the order, update any provided fields
+    const updatePromises = order.lessons.map((lesson) => {
+      // Prevent updating the unique identifier by extracting it
+      const { lessonID, ...updates } = lesson;
+
+      return db
         .collection("Lessons")
-        .updateOne(
-          { lessonID: lesson.lessonID },
-          { $set: { spaces: lesson.spaces } }
-        )
-    );
+        .updateOne({ lessonID: lessonID }, { $set: updates });
+    });
 
     await Promise.all(updatePromises);
 
     res.status(200).json({
-      message: "Order completed and lesson updated successfully",
+      message: "Order completed and lessons updated successfully",
     });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 export default router;
